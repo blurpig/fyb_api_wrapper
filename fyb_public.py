@@ -132,10 +132,4 @@ class tradehistory:
         self.exchange = exchange
         self.url = exch_url(self.exchange)
         self.update()
-
-if __name__ == "__main__":
-    print "init"
-    thry = tradehistory()
-    print "update"
-    thry.update()
     
