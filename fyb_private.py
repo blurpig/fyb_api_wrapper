@@ -68,16 +68,16 @@ class fyb_private:
     def place_order(self, qty, price, tpe)
         timestamp = int(time.time())
         data = "timestamp=" + str(timestamp) + "&qty=" + str(qty) + "&price=" + str(price) + "&type=" + tpe
-        exch_request(self.url, self.exchange, "getorderhistory", self.key, self.sig, data)
+        exch_request(self.url, self.exchange, "placeorder", self.key, self.sig, data)
         
     def withdrawl(self, amount, destination, tpe)
         timestamp = int(time.time())
         data = "timestamp=" + str(timestamp) + "&amount=" + str(amount) + "&destination=" + str(destination) + "&type=" + tpe
-        exch_request(self.url, self.exchange, "withdrawl", self.key, self.sig, data)
+        exch_request(self.url, self.exchange, "withdraw", self.key, self.sig, data)
     
     def __init__(self, ky, sg, exchange=1):
         self.key = ky
         self.sig = sg
         self.exchange = exchange
         self.url = exch_url(exchange)
-        self.test()
+        #self.test() # it is messing with the timestamp generation on the actual call
