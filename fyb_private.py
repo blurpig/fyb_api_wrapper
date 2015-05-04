@@ -5,6 +5,7 @@ import time
 import hmac
 import hashlib
 import urllib
+import json
 
 def exch_url(exchange):
     url = "www.fyb"
@@ -28,52 +29,143 @@ def exch_request(url, exchange, item, key, sig, data):
     signature = hmac.new(sig, data, hashlib.sha1)
     headers = {"Content-Type": "application/x-www-form-urlencoded", "key" : key, "sig": signature.digest().encode('hex')}
     hsock.request("POST", path, body=data, headers=headers)
-    
-    r = hsock.getresponse()
-    
-    if(r.status != 200):
-        print r.status
-        
-    print r.read()
-    return r.read()
+
+    return hsock.getresponse()
 
 
 class fyb_private:
     
+    class pending_order:
+        def __init__(self, date, price, qty, ticket, tpe):
+            self.date = date
+            self.price = price
+            self.qty = qty
+            self.ticket = ticket
+            self.order_type = tpe
+    
+    class historical_order:
+        def __init__(self, date_created, date_executed, price, qty, status, ticket, tpe):
+            self.date_created = date_created
+            self.date_executed = date_exectured
+            self.price = price
+            self.qty = qty
+            self.status = status
+            self.ticket = ticket
+            self.order_type = tpe
+        
+    pending = []
+    historical = []
+    
     def test(self):
         timestamp = int(time.time())
         data = "timestamp=" + str(timestamp)
-        exch_request(self.url, self.exchange, "test", self.key, self.sig, data)
+        r = exch_request(self.url, self.exchange, "test", self.key, self.sig, data)
+        if(r.status == 200):
+            jsond = json.loads(r.read())
+            self.valid = jsond['error'] == 0
+            return 1
+        else:
+            return -1
     
     def get_acc_info(self):
+        if(self.valid != True):
+            return -1
         timestamp = int(time.time())
         data = "timestamp=" + str(timestamp)
-        exch_request(self.url, self.exchange, "getaccinfo", self.key, self.sig, data)
+        r = exch_request(self.url, self.exchange, "getaccinfo", self.key, self.sig, data)
+        if(r.status == 200):
+            jsond = json.loads(r.read())
+            if(jsond['error'] == 0):
+                self.acc_num = jsond['accNo']
+                self.btc_bal = jsond['btcBal']
+                self.btc_deposit = jsond['btcDeposit']
+                self.email = jsond['email']
+                self.sgd_bal = jsond['sgdBal']
+                return 1
+            else:
+                return -3
+        else:
+            return -2
     
     def get_pending_orders(self):
+        if(self.valid != True):
+            return -1
         timestamp = int(time.time())
         data = "timestamp=" + str(timestamp)
-        exch_request(self.url, self.exchange, "getpendingorders", self.key, self.sig, data)
+        r = exch_request(self.url, self.exchange, "getpendingorders", self.key, self.sig, data)
+        if(r.status == 200):
+            jsond = json.loads(r.read())
+            if(jsond['error'] == 0):
+                pending = []
+                for entry in jsond['orders']:
+                    pending.append(pending_order(entry['date'], entry['price'], 
+                        entry['qty'], entry['ticket'], entry['type']))
+                    return 1
+            else:
+                return -3
+        else:
+            return -2
     
     def get_order_history(self, limit):
+        if(self.valid != True):
+            return -1
         timestamp = int(time.time())
         data = "timestamp=" + str(timestamp) + "&limit=" + str(limit)
-        exch_request(self.url, self.exchange, "getorderhistory", self.key, self.sig, data)
+        r = exch_request(self.url, self.exchange, "getorderhistory", self.key, self.sig, data)
+        if(r.status == 200):
+            jsond = json.loads(r.read())
+            if(jsond['error'] == 0):
+                history = []
+                for entry in jsond['orders']:
+                    pending.append(pending_order(entry['date_created'], entry['date_executed'], 
+                        entry['price'], entry['qty'], entry['status'], entry['ticket'], entry['type']))
+                return 1
+            else:
+                return -3
+        else:
+            return -2
         
     def cancel_pending_order(self, order):
+        if(self.valid != True):
+            return -1
         timestamp = int(time.time())
         data = "timestamp=" + str(timestamp) + "&orderNo=" + str(order)
-        exch_request(self.url, self.exchange, "cancelpendingorder", self.key, self.sig, data)
+        r = exch_request(self.url, self.exchange, "cancelpendingorder", self.key, self.sig, data)
+        if(r.status == 200):
+            jsond = json.loads(r.read())
+            return jsond['error'] == 0
+        else:
+            return -2
         
-    def place_order(self, qty, price, tpe)
+    def place_order(self, qty, price, tpe):
+        if(self.valid != True):
+            return -1
         timestamp = int(time.time())
         data = "timestamp=" + str(timestamp) + "&qty=" + str(qty) + "&price=" + str(price) + "&type=" + tpe
-        exch_request(self.url, self.exchange, "getorderhistory", self.key, self.sig, data)
+        r = exch_request(self.url, self.exchange, "placeorder", self.key, self.sig, data)
+        if(r.status == 200):
+            jsond = json.loads(r.read())
+            if(jsond['error'] == 0):
+                return jsond['pending_oid']
+            else:
+                return -3
+        else:
+            return -2
         
-    def withdrawl(self, amount, destination, tpe)
+    def withdraw(self, amount, destination, tpe):
+        if(self.valid != True):
+            return -1
         timestamp = int(time.time())
         data = "timestamp=" + str(timestamp) + "&amount=" + str(amount) + "&destination=" + str(destination) + "&type=" + tpe
-        exch_request(self.url, self.exchange, "withdrawl", self.key, self.sig, data)
+        r = exch_request(self.url, self.exchange, "withdraw", self.key, self.sig, data)
+        if(r.status == 200):
+            jsond = json.loads(r.read())
+            if(jsond['error'] == 0):
+                return jsond['msg']
+            else:
+                return -3
+        else:
+            return -2
     
     def __init__(self, ky, sg, exchange=1):
         self.key = ky
@@ -81,3 +173,9 @@ class fyb_private:
         self.exchange = exchange
         self.url = exch_url(exchange)
         self.test()
+        print self.valid
+
+
+if __name__ == "__main__":
+    private = fyb_private("9XYu6gGl70QIJ7tQ8829", "uI5Iuv3m9B")
+    private.get_acc_info()
