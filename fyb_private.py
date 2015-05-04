@@ -174,8 +174,3 @@ class fyb_private:
         self.url = exch_url(exchange)
         self.test()
         print self.valid
-
-
-if __name__ == "__main__":
-    private = fyb_private("9XYu6gGl70QIJ7tQ8829", "uI5Iuv3m9B")
-    private.get_acc_info()
