@@ -167,7 +167,7 @@ class fyb_private:
         else:
             return -2
    
-    def change_key(ky, sg):
+    def change_key(self, ky, sg):
         self.key = ky
         self.sig = sg
         self.test()
@@ -175,4 +175,9 @@ class fyb_private:
     def __init__(self, ky, sg, exchange=1):
         self.exchange = exchange
         self.url = exch_url(exchange)
-        change_key_(ky, sg)
+        self.change_key(ky, sg)
+
+
+if __name__ == "__main__":
+    private = fyb_private("10", "10")
+    private.test()
