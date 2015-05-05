@@ -100,7 +100,7 @@ class fyb_private:
                 for entry in jsond['orders']:
                     pending.append(pending_order(entry['date'], entry['price'], 
                         entry['qty'], entry['ticket'], entry['type']))
-                    return 1
+                return 1
             else:
                 return -3
         else:
@@ -166,11 +166,13 @@ class fyb_private:
                 return -3
         else:
             return -2
-    
-    def __init__(self, ky, sg, exchange=1):
+   
+    def change_key(ky, sg):
         self.key = ky
         self.sig = sg
+        self.test()
+    
+    def __init__(self, ky, sg, exchange=1):
         self.exchange = exchange
         self.url = exch_url(exchange)
-        self.test()
-        print self.valid
+        change_key_(ky, sg)
