@@ -176,8 +176,3 @@ class fyb_private:
         self.exchange = exchange
         self.url = exch_url(exchange)
         self.change_key(ky, sg)
-
-
-if __name__ == "__main__":
-    private = fyb_private("10", "10")
-    private.test()
