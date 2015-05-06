@@ -98,7 +98,7 @@ class fyb_private:
             if(jsond['error'] == 0):
                 pending = []
                 for entry in jsond['orders']:
-                    pending.append(pending_order(entry['date'], entry['price'], 
+                    pending.append(self.pending_order(entry['date'], entry['price'], 
                         entry['qty'], entry['ticket'], entry['type']))
                 return 1
             else:
@@ -117,7 +117,7 @@ class fyb_private:
             if(jsond['error'] == 0):
                 history = []
                 for entry in jsond['orders']:
-                    pending.append(pending_order(entry['date_created'], entry['date_executed'], 
+                    pending.append(self.historical_order(entry['date_created'], entry['date_executed'], 
                         entry['price'], entry['qty'], entry['status'], entry['ticket'], entry['type']))
                 return 1
             else:
