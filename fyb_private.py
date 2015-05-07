@@ -46,7 +46,7 @@ class fyb_private:
     class historical_order:
         def __init__(self, date_created, date_executed, price, qty, status, ticket, tpe):
             self.date_created = date_created
-            self.date_executed = date_exectured
+            self.date_executed = date_executed
             self.price = price
             self.qty = qty
             self.status = status
@@ -117,7 +117,7 @@ class fyb_private:
             if(jsond['error'] == 0):
                 history = []
                 for entry in jsond['orders']:
-                    pending.append(self.historical_order(entry['date_created'], entry['date_executed'], 
+                    history.append(self.historical_order(entry['date_created'], entry['date_executed'], 
                         entry['price'], entry['qty'], entry['status'], entry['ticket'], entry['type']))
                 return 1
             else:
